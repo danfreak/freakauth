@@ -1,0 +1,185 @@
+ * @package     FreakAuth_light
+ * @subpackage  Libraries
+ * @category    Authentication
+ * @author      Daniel Vecchiato (danfreak) & Christophe Gragnic (grahack)
+ * @copyright   Copyright (c) 2007, 4webby.com
+ * @license	http://www.gnu.org/licenses/lgpl.html
+ * @link 	http://4webby.com/FreakAuth
+
+********************************************************************************
+*     FreakAuth_light UPGRADE INSTRUCTIONS from 1.0.4 to 1.1
+********************************************************************************
+
+You'll find the latest information and instructions for other versions on
+http://www.ciforge.com/trac/freakauth/wiki/FAL_Upgrade
+
+1.0.4 is bug fixes, functionnal enhancements and a refactoring of
+the public folder.
+
+=================
+| Special Files |
+=================
+
+Old files to keep in your current installation or not to copy in an
+existing installation.
+
+    * some controllers
+          o auth
+          o installer
+          o example
+          o freakauth_demo
+    * some views
+          o application/views/FreakAuth_light/content/installer.php
+    * some config files
+          o the _demo ones (routes, config, autoload)
+          o freakauth_light.php
+    * some new libs
+          o application/libraries/MyFAL_demo.php
+          o application/libraries/MyFALVal_demo.php
+
+CI's config.php
+===============
+
+If you used our config_demo.php file for your CI installation, you'll prefer
+to remove a line in the config.php:
+
+	$config['date_format']
+
+Some comments have been added to this file in the Session Variables section.
+Please have a look at them.
+
+We remind you that the FAL_auto_login_period key is not used.
+
+freakauth_light.php
+===================
+
+Comments
+--------
+
+Comments have been reworked (typos removed and clarity enhanced).
+
+Key changes
+-----------
+FROM                                      TO
+FAL_deny_with_flash_message               FAL_flash
+FAL_use_security_code_login               FAL_use_captcha_login
+FAL_use_security_code_register            FAL_use_captcha_register
+FAL_use_security_code_forgot_password     FAL_use_captcha_forgot_password
+
+captcha section
+FAL_security_code_case_sensitive       FAL_captcha_case_sensitive
+FAL_security_code_upper_lower_case     FAL_captcha_upper_lower_case
+FAL_security_code_use_numbers          FAL_captcha_use_numbers
+FAL_security_code_use_specials         FAL_captcha_use_specials
+FAL_security_code_min                  FAL_captcha_min
+FAL_security_code_max                  FAL_captcha_max
+FAL_security_code_image_font_size      FAL_captcha_image_font_size
+FAL_security_code_image_font_color     FAL_captcha_image_font_color
+FAL_security_image_library             FAL_captcha_image_library
+FAL_security_code_base_image_path      FAL_captcha_base_image_path
+FAL_security_code_image_base_image     FAL_captcha_image_base_image
+FAL_security_code_image_font           FAL_captcha_image_font
+FAL_security_code_image_path           FAL_captcha_image_path
+FAL_security_code_image                FAL_captcha_image
+
+validation rules section
+FAL_user_security_code_field_validation     FAL_user_captcha_field_validation
+
+Value changes
+-------------
+FAL_captcha_base_image_path:
+we changed it from public/images/captcha/ to
+	$config['FAL_assets'].'/'.$config['FAL_images'].'/captcha/'.
+If you use the basic setting, everything will be fine, but else you'll
+know what to do...
+
+Forms have been moved to the $config['FAL_template_dir'].'content/forms'
+directory. So if you kept basic settings, please copy-paste the VIEW SETTINGS
+until // CAPTCHA VIEW to your freakauth_light.php file.
+
+Additions
+---------
+Those sections have been added:
+
+    * Enable/Disable FreakAuth light extensions
+    * Whether the registration/activation process requires e-mail verification
+    * Directory for FreakAuth_light views assets
+
+This line has been added:
+
+$config['FAL_captcha_img_tag_view'] = $config['FAL_template_dir'].'content/forms/html_for_captcha';
+
+==============
+| Form Views |
+==============
+
+We moved (with modifications) those four view files
+
+    * application/views/FreakAuth_light/content/change_password.php
+    * application/views/FreakAuth_light/content/forgotten_password.php
+    * application/views/FreakAuth_light/content/login.php
+    * application/views/FreakAuth_light/content/register.php
+
+to
+
+    * application/views/FreakAuth_light/content/forms/change_password.php
+    * application/views/FreakAuth_light/content/forms/forgotten_password.php
+    * application/views/FreakAuth_light/content/forms/login.php
+    * application/views/FreakAuth_light/content/forms/register.php
+
+====================
+| Functional Files |
+====================
+
+If you just want to upload the new files or the one that have been changed,
+take care of those:
+
+modified
+    * application/controllers/admin/admins.php
+    * application/controllers/admin/example.php
+    * application/controllers/admin/users.php
+    * application/controllers/installer.php
+    * application/helpers/freakauth_light_helper.php
+    * application/libraries/FAL_validation.php
+    * application/libraries/Freakauth_light.php
+    * application/views/FreakAuth_light/template_admin/users/add.php
+    * application/views/FreakAuth_light/template_admin/users/detail.php
+    * application/views/FreakAuth_light/template_admin/users/edit.php
+    * application/views/FreakAuth_light/template_admin/users/list.php
+    * application/models/FreakAuth_light/usertemp.php
+    * application/models/usermodel.php
+
+new
+    * application/views/FreakAuth_light/content/forms/html_for_captcha.php
+
+=================
+| Public Folder |
+=================
+
+Create those folders in /public:
+frontend, frontend/css, admin, admin/css, and shared, then
+
+    * move public/css/fal_style.css into public/frontend/css/
+    * move the public/css/images folder to public/frontend/css/images
+
+    * move public/css/admin_console.css into public/admin/css/
+    * move and rename the public/css/images_adminconsole folder to public/admin/images
+
+If you used our admin_console.css, replace the old one by the new one.
+If you used yours, you will know better than we do what to do:
+
+     just replace images_adminconsole occurences with ../images (4 occurences)
+     images_adminconsole/arrow.gif with ../../shared/images/arrow.gif (1)
+     images/error.png with ../../shared/images/error.png (1)
+
+    * remove the old public/css folder
+
+    * move the public/js folder to public/shared/js
+
+If you do not want to adopt the new assets folder structure, simply change the
+TEMPLATE SETTINGS in application/config/freakauth_light.php in order to make
+them accomplish your needs!
+
+If you change the default TEMPLATE SETTINGS, remember to edit the CSS files in
+order to make them point to the right folders were you put your images.
+

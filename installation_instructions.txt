@@ -1,0 +1,329 @@
+
+ * FreakAuth_light Package
+ * Security handler that provides functionality to handle login, logout, registration,
+ * and reset password requests.  
+ * It also can verify the logged in status (3 user classes by default, you can add more custom user groups)
+ * 
+ * => superadmin (has permissions on everything and can also create other admin)
+ * => admin		 (you can choose what to let him manage)
+ * => user		 (it is a registered user, and you can decide to give in rights to access
+ * 				  some specific areas (controllers) of your application
+ *
+ * The class requires the use of
+ * 
+ * => Database CI official library
+ * => Db_session, FAL_validation and the FAL_front library (included in the download)
+ * => URL, FORM and FreakAuth_light (included in the download) helpers
+ * 
+ * The FreakAuth_light library should be auto loaded in the core classes section
+ * of the autoloader.
+ * 
+ * Passwords are encripted with md5 algorithm by the method _encode($password)
+ * 
+
+********************************************************************************
+*-------------------------------------------------------------------------------
+* REQUIREMENTS:
+*-------------------------------------------------------------------------------
+- CodeIgniter 1.5.X (http://www.codeigniter.com/download.php)
+- MySQL 4.0 or higher
+
+********************************************************************************
+*-------------------------------------------------------------------------------
+* DOCUMENTATION:    http://freakauth.4webby.com/
+*					http://www.ciforge.com/trac/freakauth/wiki/FreakAuthDoc              
+*-------------------------------------------------------------------------------
+* TUTORIALS:        http://www.4webby.com/tutorials           
+*-------------------------------------------------------------------------------
+* INSTALLATION:     check out http://freakauth.4webby.com/                
+*-------------------------------------------------------------------------------
+1) unzip FreakAuth.zip in a local folder
+
+2) copy the files INSIDE the folder 'www' in your CodeIgniter
+ installation directory)
+
+3) check out the config_demo.php, autoload_demo.php, routes_demo.php in your in your
+   system/application/config folder. 
+   Backup your
+   -  system/application/config.php
+   -  system/application/autoload.php
+   -  system/application/routes.php
+   
+   Rename the _demo.php files to config.php, autoload.php, routes.php and you are done
+  
+5) create the necessary tables in the database: import FreakAuth_DB.sql
+
+6) We set the table prefix to "fa_": if you want to change it do it now from phpMyAdmin 
+   or your DB software.
+   If you change the DB table prefix, open the file system/application/config/freakauth_light.php
+   and change $config['FAL_table_prefix'] value to your table prefix (i.e. if your table prefix
+   is "pippo_" set $config['FAL_table_prefix'] = 'pippo_';)
+
+7) try to access http://www.YOUR_WEBSITE.com/index.php/installer/
+    
+    In this page you wil check if you installed the DB tables properly and if you 
+    set all necessary configurations.
+    
+    You will also be able to insert the system superadmin.
+
+8) add your encryption key in your system/application/config/config.php
+  (read "Setting Your Key" at http://www.codeigniter.com/user_guide/libraries/encryption.html)
+
+9)In order to make CAPTCHA functionality to work properly make your folders www.YOUR_WEBSITE.com/tmp
+  writable (chmod (777)).
+
+********************************************************************************
+*-------------------------------------------------------------------------------
+* ADDITIONAL STUFF:
+*-------------------------------------------------------------------------------
+10) To customise your views change the files in 
+---------------------------------------------------------------       
+          application/views/FreakAuth_light/template
+      
+      and css in 
+      
+          public/css
+      
+    You can build your own authentication cotroller and name it as you like.
+    See application/controllers/auth.php as an example.
+---------------------------------------------------------------   
+11) Check out your system/application/config/freakauth_light.php
+    to change the settings of your authentication system
+---------------------------------------------------------------       
+    ------------------------------------------------------------------------
+    HOW DOES IT WORK
+    
+    There are 3 default roles: superadmin, admin and user
+    - superadmin have access to everything
+    - admin can do nearly everything, but manage administrators admins
+    - users have access to the reserved areas of the frontend
+    
+    You can add your custom roles in application/config/freakauth_light.php
+    Look for this variable: $config['FAL_roles']
+    Default configuration:
+    $config['FAL_roles'] = array(
+							//don't change the two following lines//
+							 'superadmin' => 1,
+							 //end don't change
+							 
+							 'admin' => 2,
+							 
+							 
+							 //add your custom roles here
+							 //'editor' => 3,
+							 //'gallery_manager' => 4
+							 //--------------------------
+							 
+							 //don't change the following line
+							 'user' => 100,
+							);
+    
+    
+    roles work by INHERITANCE
+    this means that the lower the value of the role, the higher in the hierarchy
+    i.e superadmin (value 1) has more rights than admin (value 2)
+    i.e editor (value 3) has more rights than user (value 100)
+ 
+    you can also set usergroups with the same hierarchy
+   i.e. 
+   'editor' => 4,
+   'gallery_manager' => 4
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  WARNING do not set custom groups with value 1 or 2
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+---------------------------------------------------------------    
+12)  HOW TO PROTECT WEBSITE AREAS
+---------------------------------------------------------------       
+    Use this in your controllers
+    
+    //--------------------------------
+    $this->freakauth_light->check();
+    //--------------------------------
+    /**
+     * Method used to restrict acess to controllers or methods of controllers to the specified category of users
+     * it requires 2 optional parameters
+     * The first parameter specifies the user group i.e. ('admin')
+     * The second parameter specifies whether the area is reserved ONLY to that group (true) or if it is accessible by groups higher in the hierarchy
+     * 
+     * example usage in a controller
+     * 
+     * 1) $this->freakauth_light->check()  //this restricts acess to registered users and user-groups higher in the hierarchy (i.e. admin, superadmin)
+     * 2) $this->freakauth_light->check('admin')  //this restricts acess to 'admin' and user-groups higher in the hierarchy (i.e. superadmin)
+     * 3) $this->freakauth_light->check('admin', true)  //this restricts acess to 'admin' ONLYCASE 1: you want to protect all methods of your controller
+    
+      You can use the method check() both in the Class contructor or in the single methods of your class.
+      It depends on you. If you wanna protect an entire class put it in the constructor, 
+      otherwise in the single methods that you want to protect
+      
+      FRONTEND: how to build an area reserved to users
+      
+                have a look at the file: 
+                
+                        system/application/controllers/example.php
+                
+      BACKEND: how to build an area reserved to admins
+      
+                have a look at the file: 
+                
+                        system/application/controllers/admin/example.php
+                        
+                        system/application/controllers/admin/admins.php
+                
+    CASE 2: you want to protect some methods of controller
+     
+       FRONTEND: put this code: 
+                      //--------------------------------
+                      $this->freakauth_light->check();
+                      //--------------------------------
+                      
+            as first line of the method/methods you wanna protect
+            
+---------------------------------------------------------------              
+13) HOW TO DISPLAY (execute certain things) CERTAIN THINGS DEPENDING ON ROLES (group membership)
+---------------------------------------------------------------     
+  There are 4 methods in the FreakAuth_light library to perform this operation.
+  Each method as a helper counterpart.
+  
+  3 of this methods are specific, while the forth is more general:
+  
+  1) $this->freakauth_light->isValidUser()
+     
+     Checks to see if a user is logged in
+     Returns false if FreakAuth system is not activated
+     Returns true if a valid user is logged, false otherwise 
+  
+  2) $this->freakauth_light->isAdmin()
+      
+     Checks to see if a user is an administrator
+     Returns false if FreakAuth system is not activated
+     Returns true if admin or superadmin, otherwise false
+     
+  3) $this->freakauth_light->isSuperAdmin()
+      
+     Checks to see if an administrator has superadmin credentials
+     uses Class Db_session method userdata
+     Returns false if FreakAuth system is not activated
+     Returns true if superadmin, otherwise false
+     
+  4) $this->freakauth_light->belongsToGroup()   
+     
+     Method used to used to check if a logged in members belongs to the custom role (group) specified in the first parameter
+     it requires 2 optional parameters
+     The first parameter specifies the user groups as a comma separated string (NB: just comma separated WITHOUT SPACES->'user,admin'<--RIGHT 'user, admin'<--WRONG)
+     The second parameter specifies whether we want to check to the specified groups ONLY or for AT LEAST those group membership in the hierarchy
+     (returns true also if the logged user belongs to a group higher in the hierarchy)
+      
+     example usage in a controller (see the relative helper belongsToGroup() to use it in views)
+      
+     a) $this->freakauth_light->belongsToGroup()  //returns true if the visitor is logged in and he is AT LEAST an user
+     b) $this->freakauth_light->belongsToGroup('user,editor')  //returns true if the visitor is logged in and he is AT LEAST an user or an editor (therefore it returns true also if he belongs to user-groups higher in the hierarchy (i.e. superadmin)
+     c) $this->freakauth_light->belongsToGroup('admin', true)  //this true if the visitor is logged in and is an 'admin' ONLY
+
+-------------------------------------------------------------------------------- 
+14) HOW TO USE mod_rewrite 
+---------------------------------------------------------------   
+    a) create a file called .htaccess with the following content
+    
+    <IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteCond $1 !^(index\.php|public|tmp|robots\.txt)
+    RewriteRule ^(.*)$ index.php/$1 [L]
+    </IfModule>
+    
+    b) drop the .htaccess file in your root directory
+    
+    c) open your system/application/config.php and make sure that $config['index_page']
+       looks like:
+       
+       $config['index_page'] = "";
+       
+-------------------------------------------------------------------------------- 
+15) HOW TO USE RE_ROUTE the application/controllers/auth.php controller
+---------------------------------------------------------------   
+    have a look at this tutorial:
+    - http://www.4webby.com/freakauth/tutorials/i-dont-like-that-authphp-controller.html
+    
+-------------------------------------------------------------------------------- 
+16) HOW TO ALLOW DIRECT REGISTRATION (WITHOUT CONFIRMATION E-MAIL)
+---------------------------------------------------------------   
+    The default registration process is as follows:
+    1) the user registers to the website (data stored in user_temp table)
+    2) the user gets a registration e-mail with an activation link
+    3) if the user clicks the activation link (data moved to user table)
+       he get finally registered and can login with his credentialsOpen 
+       application/config/freakauth_light.php
+    
+    If you prefer to avoid e-mail verification, namely:
+    1) the user registers to the website (data stored in user table)
+    2) the user can immediately login
+    3) no e-mail is sent to the user to remember him his credentials
+       i.e. username and password
+    
+       
+    Open the file application/config/freakauth_light.php
+    
+    set: $config['FAL_register_direct'] = TRUE;
+
+-------------------------------------------------------------------------------- 
+17) EXTENDING FREAKAUTH_LIGHT
+---------------------------------------------------------------   
+    Go in the following directory:
+    - application/libraries/
+    
+    rename the built in demo files from  
+ 	- MyFAL_demo.php to libraries/MyFAL.php 
+ 	- MyFALVal_demo.php to libraries/MyFALVal.php 
+    
+ 	Open the file application/config/freakauth_light.php
+    
+    set: $config['FAL_use_extensions'] = TRUE;
+    
+    Have a look at this tutorial to find out more:
+    - http://www.4webby.com/freakauth/tutorials/extending-freakauth.html
+       
+********************************************************************************
+*-------------------------------------------------------------------------------
+* NOTES: not necessary files
+*-------------------------------------------------------------------------------
+
+ - jQuery
+    jQuery (www.YOUR_WEBSITE.com/public/js) is not required for FreakAuth_light 
+    in order to behave properly.
+    It's purpose is only to animate (appear/fade) flash messages.
+    
+    If you don't want it, simply delete it and in  views/FreakAuth_light/template/content.php
+    find
+    
+        <div id="flashMessage" style="display:none;">
+    
+    change it to
+    
+      <div id="flashMessage">
+      
+    
+********************************************************************************
+*-------------------------------------------------------------------------------
+* CREDITS: third party stuff
+*-------------------------------------------------------------------------------
+- jquery (http://jquery.com/) for the javascript library jquery.js
+- Mark James (http://www.famfamfam.com/lab/icons/silk/) for the small icons of admin backend and installer
+  
+License: 
+ * ---------------------------------------------------------------------------------
+ * Copyright (C) 2007  Daniel Vecchiato (4webby.com)
+ * ---------------------------------------------------------------------------------
+ *This library is free software; you can redistribute it and/or
+ *modify it under the terms of the GNU Lesser General Public
+ *License as published by the Free Software Foundation; either
+ *version 2.1 of the License, or (at your option) any later version.
+ *
+ *This library is distributed in the hope that it will be useful,
+ *but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *Lesser General Public License for more details.
+ *
+ *You should have received a copy of the GNU Lesser General Public
+ *License along with this library; if not, write to the Free Software
+ *Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ 
+

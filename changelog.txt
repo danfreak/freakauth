@@ -1,0 +1,220 @@
+ * @package     FreakAuth_light
+ * @subpackage  Libraries
+ * @category    Authentication
+ * @author      Daniel Vecchiato (danfreak) & Christophe Gragnic (grahack)
+ * @copyright   Copyright (c) 2007, 4webby.com
+ * @license	http://www.gnu.org/licenses/lgpl.html
+ * @link 	http://4webby.com/FreakAuth
+ 
+********************************************************************************
+*     FreakAuth_light CHANGELOG
+********************************************************************************
+
+NOTE: [xx] are the changeset numbers in our ciforge project
+      see: http://www.ciforge.com/trac/freakauth
+
+/*-------------------------------------+
+|  FREAKAUTH_LIGHT 1.0.4 (16/05/2007)  |
++-------------------------------------*/
+The main change here is that while in version 1.0.3 we reached views abstraction,
+with versio 1.0.4 we also reached controllers name abstraction. Namely now you can
+build multiple controllers, each of them handling one different action (i.e. one controller
+for login/logout, one for changepassword etc.).
+
+We also corrected some other stuff reported in FAL_1.0.3 like:
+----------------
+DENY PROCESS
+----------------
+[206] 	fixed the deny process (denyAccess() function) see #33
+[215] [217] in the deny process, if a visitor comes with no http_referer, now sent to FAL_denied_from_ext_location
+----------------
+CHANGE PASSWORD 
+----------------
+[169] 	fixes #18 (validation error messages in change pass), I also cleaned the set_fields() and set_rules() calls: dispatched them nicely in the functions instead of a big call in the constructor. Added a config key for forgotten pass email validation. changepassword() now calls the right lang keys.
+[183] reworked concistency of the password rules (register and change password) removed the hardcoded rules and added the match rule to the one in the config file note: breaks the change_password template (see the keys of the password fields)
+[196] 	 fixes #14: changepassword wrong error message. I added a lang item and made a redirect()
+----------------
+OTHER PROCESSES
+----------------
+[163] 	"improved security --> corrected password fields redisplay upon submission error "
+[170] 	fixes #21: installer now displays directly the insertion of the superadmin (just added a redirect()
+[178], [179], [184] to [193], [202], [210] "added variables to fix ticket #13" in order to make the library not only template independent, but even controller/method naming abstract
+[213] 	changed occurences of $this->uri->ruri_string() to $this->uri->uri_string() in views (form action) because if I reroute my uri (ie route['login']="auth/login") I don't want that upon form validation failure the rerouted uri gets displayed
+----------------
+VISUALS 
+----------------
+[174] 	added a <br /> in some content view files to separate a bit the 'continue' link
+[197] [205] changed views register.php and changepassword.php in order to fit longer labels
+[203] [209] added changePassword definition in fal_style.css and modified change_password view
+[208] 	"changed .error style in fal_style.css to #FF3300->more flashy"
+[214] 	merged the pre and code selectors and monospaced them
+[216] 	added a comma and unwrap tags in the emails
+----------------
+TYPO FIXES 
+----------------
+[168] 	fixed the FrekAuth typo in welcome controller
+[171] 	fixed the passoword typo
+[172] 	html validation fix: </p> instead of <p>
+[173] 	typo in activation email, removed a '+'
+[175] 	removing a useless '</td>' in an admin template
+[176] 	fixed a typo between banned and country_id in a template file
+[180] 	fixed the lenght typo
+[211] 	fixed the Frek typo in the installer
+[212] 	"eliminating a <br> present in fal_style.css"
+----------------
+MISC 
+----------------
+[165] 	erase the security code from the db_session just after checking (see #20)
+[167] 	fixed font path for the captcha, now uses BASEPATH
+[177] 	adding id attributes to the form tags for login, register, forgotten password and change password forms
+[194] 	"eliminated transactions from FreakAuth_light.php library method activation () "
+[195] 	eliminated unused method password_change_check() from FAL_validation library
+[199] [200] 	"cleaned up installer from redundant validation stuff already in FAL_validation"
+[198] [204] 	changed method name deny() to denyAccess() in Freakauth_light.php, and updated all calls to this method to use the new name
+[207] 	changed methods naming in Freakauth_light lib: from _generateRandomSecurityCodeImage to _generateCaptcha and from _deleteOldSecurityCodeImage to _deleteOldCaptcha
+
+
+
+
+/*------------------------------------+
+|  FREAKAUTH_LIGHT 1.0.3 (3/05/2007)  |
++------------------------------------*/
+apart from some not harmfull(with regard to security) bug fixing, the main improvement is views abstraction.
+You can check the changes in detail pointing to the url
+
+=> http://www.ciforge.com/trac/freakauth/changeset/92
+
+and changing the last segment of the uri with the numbers in brackets
+
+----------------
+BUG FIXES
+----------------
+[92] more fixing for admin/admins controller pagination
+[91] added re-routing for admin/admins pagination in backend
+[90] fixed "0 users modified" bug in admin/admins and admins/users controllers
+[89] sorted out problem with pagination in users and admins listing (methods index() in the controllers) backend
+[78] sorted out problem with the displayLoginForm() function in the FAL helper
+[63] fixed the redirection if try to register but no registration allowed
+[18] corrected a bad link in the _sendForgottenPasswordResetEmail function of libraries/Freakauth_light.php (email content)
+[9] two short tags (without '=') fixed
+[8] corrected php4 bug with $this->CI->Userprofile
+
+-------------------
+VIEWS ABSTRACTION
+-------------------
+[155] helper function loginAnchor() abstraction--> now it is possible to specify custom controllers names for handling login/logout actions
+[128][130] 	updated the helper functions displayLoginForm and displayRegistrationForm in order to use the new FAL_front library.
+[127][129] 	modified the auth controller in order to use the new FAL_front library
+[126] 	modified template/content.php in order to use the new FAL_front library
+[125] 	modified form action in views in order to use the new FAL_front library
+[124] 	added library that manages all frontend actions. This libraries abstracts FAL even more, making it easier its integration in custom templating systems
+
+---------------------------
+CHANGES TO FUNCTIONALITIES
+---------------------------
+[99] 	gra's changes for pagination issues + users list now showing everyone ('edit' and 'remove' links displayed according to the role of the user in the table)
+[83] 	added function displayRegitrationForm() in the helper
+[76] 	groups names trim() to eliminate possible whitespaces at the beginning and end of groups names passed as parameters to the belongsToGroup() method
+[70] 	a 'validUser' is now role independant + functions that used 'isValidUser() OR isAdmin()' now uses only isValidUser() or nothing
+[64] 	enhancement or the denying process + link to example in the nav (example now in a view)
+[62] 	fixed a call from auth.php to a key in db_session (was 'username', now uses getUserName()
+[56] 	adding convenient helper functions to get user infos (the one connected or others) + adding some more user info in db_session + renaming the 'username' key in this db_session to 'user_name'
+[36] 	added some more customization possibilities for the continue link: 'FAL_home_action' is replaced by four different keys (changed six view files in content/)
+cleaning the code and internationalization ¶
+[109] 	moving the installer view outside the 'content' template
+[106] 	backend validation=> moved functions from controllers to FAL_validation library, edited views FreakAuth/admin/users/edit and FreakAuth/admin/users/add for complaince with FAL_validation lib, corrected 1 bug in password_backend_check function
+[94] 	modified views (forms) in order to use the FAL_validation library
+[93] 	added FAL_validation library, modified config/freakauth_light_config (validation rules), modified controllers/auth.php in order to use the FAL_validation library
+[79] 	the 'maintenance message' (if FAL is turned off) is now templated and i18n-ed
+[77] 	login anchor is now templated
+[75] 	use of base_url() instead of the config->item() call in some view files
+[72] 	renamed a key in the config file + cleaned the comments
+[68] 	replaced hardcoded template directory in controllers/admin/* by config setting
+[40] 	i18n of activation heading
+[39] 	removed useless <div> tags in register and change_pass views
+[38] 	i18n enhancements all over the lib, except in admin area (+removed the ? of 'forgottenpasword?')
+[27] 	added $this->_container in the constructor of every controller
+[26] 	added $this->_table in the constructor of every model
+[21] 	correcting a small typo in a key of the lang file (success instead of sucess)
+[20] 	factorisation of the html code displaying the captcha, (corrects some html badness : now an 'alt' attribute and double quotes around 'note')
+[19] 	removed unused code (terms_of_service.php and lang keys), corrected a lower case letter
+[7] 	added helper function to set a FLASH MESSAGE
+[6] 	added $this->container in the constructor of the freakauth_demo.php controller
+[4] 	changed hard-coded 'ci_session' with $this->config->item('sess_table_name') (line 81 of the installer controller)
+
+----------------
+SECURITY
+----------------
+[111] improved login validatin security merging individual messages for wrong username or wrong password in just one message: wrong username or password
+
+
+----------------
+VISUALS
+----------------
+[154] changed name to frontend stylesheet from style.css to fal_style.css
+[115] one tab is now active among other tabs, according to the page (both on user side and admin side)
+[101] added custom website ("YOUR_DOMAIN.com" Administration Console) name in admin backend header <head><title> tag
+[100] added custom website ("YOUR_DOMAIN.com" Administration Console) name in admin backend header <h1> tag
+[74] 	jumped a line in the JS alert for Terms of Services not agreed
+[41] 	removed all the <span> tags around error messages in forms
+
+----------------
+HTML VALIDATION
+----------------
+[95] 	corrected some stuff for HTML compliance in installer, & views
+[37] 	corrected html validation badness or small typos
+
+--------------------------
+EXPLANATIONS AND COMMENTS
+--------------------------
+[110] a list of examples has been built
+[85] 	changed a sentence in controllers/freakauth_demo.php
+[82] 	changed file description in the comment at the beginning of file
+[23] 	added or corrected some comments
+
+
+
+/*--------------------------------------+
+|FREAKAUTH_LIGHT 1.0.2-BETA (19/02/2007)|
++--------------------------------------*/
+- changed function name view() to show() in controllers/admin/admins.php for PHP4 compliance
+- changed function name view() to show() in controllers/admin/users.php for PHP4 compliance
+- changed the links in the relative views of the above controller
+- sorted out pagination problem in function index() in controllers/admin/users.php
+- added method belongsToGroup() in application/libraries/freakauth_light.php
+- added helper belongsToGroup($group=null, $only=null) in application/helpers/freakauth_light_helper.php
+- made some small changes in the application/helpers/freakauth_light_helper.php
+- Changed languages array prefix from 'FreakAuth_' to 'FAL_'
+- other minor code cleanup
+
+
+/*--------------------------------------+
+|FREAKAUTH_LIGHT 1.0.1-BETA             |
++--------------------------------------*/
+- made it not mod_rewrite dependent (works also without mod_rewrite)
+- merged admin and user table (changed DB structure)
+- made it PHP4 compliant
+- eliminated simplepie plugin and helper
+- made template directory customisable
+- added custom roles
+- improved flexibility in method check() of the FreakAuth_light library
+- other minor code cleanup
+
+/*--------------------------------------+
+|FREAKAUTH_LIGHT 1.0.2-ALPHA            |
++--------------------------------------*/
+- sorted out small error in controller adm.php
+- sorted out validation rules problem in library FreakAuth_light #1133 & #1137
+- update the userprofile model (added method deleteUserProfile($id))
+- made controllers/admin/users.php independent from DB tables relations (Foreign keys)
+- updated DB schema (deleted relations) and converted all tables fro InnoDB to MyISAM
+
+
+/*--------------------------------------+
+|FREAKAUTH_LIGHT 1.0.1-ALPHA            |
++--------------------------------------*/
+- sorted out problem in .htacess file
+- sorted out problem in library FreakAuth_light for admin login line #304
+- sorted out a CSS problem for registration with Mozilla 1.5
+
+--------------------------------------------------------------------------------
