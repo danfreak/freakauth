@@ -1,0 +1,25 @@
+FreakAuth_light Package fro Code Igniter
+
+by Daniel Vecchiato (danfreak) & Christophe Gragnic (grahack)
+
+License: LGPL
+
+ Security handler that provides functionality to handle login, logout, registration,
+ and reset password requests.  
+ It also can verify the logged in status (3 user classes by default, you can add more custom user groups)
+ 
+ => superadmin (has permissions on everything and can also create other admin)
+ => admin		 (you can choose what to let him manage)
+ => user		 (it is a registered user, and you can decide to give in rights to access
+ 				  some specific areas (controllers) of your application
+
+ The class requires the use of
+ 
+ => Database CI official library
+ => Db_session, FAL_validation and the FAL_front library (included in the download)
+ => URL, FORM and FreakAuth_light (included in the download) helpers
+ 
+ The FreakAuth_light library should be auto loaded in the core classes section
+ of the autoloader.
+ 
+ Passwords are encripted with md5 algorithm by the method _encode($password)
